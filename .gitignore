@@ -4,5 +4,6 @@ logs
 coverage
 jest.config.js
 npm-debug.log*
+.cursor/
 
 
