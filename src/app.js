@@ -4,6 +4,7 @@ const { errorHandler } = require('./middlewares/error.middleware');
 const { requestLogger } = require('./middlewares/logger.middleware');
 const userRoutes = require('./routes/user.routes');
 const transactionRoutes = require('./routes/transaction.routes');
+const budgetRoutes = require('./routes/budget.routes');
 const summaryRoutes = require('./routes/summary.routes');
 
 const app = express();
@@ -24,6 +25,7 @@ app.get('/health', (req, res) => {
 // API routes
 app.use('/users', userRoutes);
 app.use('/transactions', transactionRoutes);
+app.use('/budgets', budgetRoutes);
 app.use('/summary', summaryRoutes);
 
 // Global error handling middleware (must be last)
