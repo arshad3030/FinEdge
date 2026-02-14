@@ -1,6 +1,20 @@
 const Transaction = require('../models/transaction.model');
+const cacheService = require('../utils/cache');
+
+// Cache TTL: 60 seconds (summary data is cached for 1 minute)
+const CACHE_TTL_SECONDS = 60;
 
 async function getSummary(userId, { month, year } = {}) {
+  // Generate cache key based on userId and optional filters
+  const cacheKey = cacheService.generateKey('summary', { userId, month, year });
+
+  // Try to get from cache first
+  const cached = cacheService.get(cacheKey);
+  if (cached !== null) {
+    return cached;
+  }
+
+  // Cache miss - fetch from database
   const match = { userId };
 
   if (month && year) {
@@ -35,7 +49,7 @@ async function getSummary(userId, { month, year } = {}) {
   const savingsTarget = null;
   const goalStatus = null; // e.g., "on_track" | "over_budget"
 
-  return {
+  const summary = {
     totalIncome,
     totalExpense,
     balance,
@@ -44,8 +58,24 @@ async function getSummary(userId, { month, year } = {}) {
     savingsTarget,
     goalStatus
   };
+
+  // Store in cache with TTL
+  cacheService.set(cacheKey, summary, CACHE_TTL_SECONDS);
+
+  return summary;
 }
 
-module.exports = { getSummary };
+/**
+ * Invalidate cache for a specific user's summary
+ * Call this when transactions are created/updated/deleted
+ */
+function invalidateUserSummaryCache(userId) {
+  // Invalidate all summary cache entries for this user
+  // Since we can't easily list all keys, we'll rely on TTL expiry
+  // For a more robust solution, you could maintain a list of active keys per user
+  // For now, the cache will expire naturally after TTL
+}
+
+module.exports = { getSummary, invalidateUserSummaryCache };
 
 

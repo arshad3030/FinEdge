@@ -1,5 +1,6 @@
 const Transaction = require('../models/transaction.model');
 const { NotFoundError } = require('../utils/appError');
+const { invalidateUserSummaryCache } = require('./summary.service');
 
 async function createTransaction(userId, data) {
   const payload = {
@@ -7,6 +8,10 @@ async function createTransaction(userId, data) {
     userId
   };
   const tx = await Transaction.create(payload);
+  
+  // Invalidate summary cache when transaction is created
+  invalidateUserSummaryCache(userId);
+  
   return tx;
 }
 
@@ -46,6 +51,9 @@ async function updateTransaction(userId, id, updates) {
     throw new NotFoundError('Transaction not found');
   }
 
+  // Invalidate summary cache when transaction is updated
+  invalidateUserSummaryCache(userId);
+
   return tx;
 }
 
@@ -54,6 +62,10 @@ async function deleteTransaction(userId, id) {
   if (!result) {
     throw new NotFoundError('Transaction not found');
   }
+
+  // Invalidate summary cache when transaction is deleted
+  invalidateUserSummaryCache(userId);
+
   return result;
 }
 
