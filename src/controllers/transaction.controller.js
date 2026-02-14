@@ -30,6 +30,7 @@ const getOne = asyncHandler(async (req, res) => {
 const update = asyncHandler(async (req, res) => {
   const userId = req.user.id;
   const { id } = req.params;
+  console.log(req.body);
   const tx = await updateTransaction(userId, id, req.body);
   return res.status(200).json(tx);
 });
